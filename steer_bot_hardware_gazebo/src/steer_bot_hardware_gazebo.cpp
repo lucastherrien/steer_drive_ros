@@ -137,6 +137,14 @@ namespace steer_bot_hardware_gazebo
     front_steer_jnt_pos_ = (virtual_front_steer_jnt_pos_[INDEX_RIGHT] + virtual_front_steer_jnt_pos_[INDEX_LEFT]) / virtual_front_steer_jnt_pos_.size();
     front_steer_jnt_vel_ = (virtual_front_steer_jnt_vel_[INDEX_RIGHT] + virtual_front_steer_jnt_vel_[INDEX_LEFT]) / virtual_front_steer_jnt_vel_.size();
     front_steer_jnt_eff_ = (virtual_front_steer_jnt_eff_[INDEX_RIGHT] + virtual_front_steer_jnt_eff_[INDEX_LEFT]) / virtual_front_steer_jnt_eff_.size();
+    
+    lidar_jnt_pos_ = front_steer_jnt_pos_;
+    lidar_jnt_vel_ = front_steer_jnt_vel_;
+    lidar_jnt_eff_ = front_steer_jnt_eff_;
+
+    camera_jnt_pos_ = front_steer_jnt_pos_;
+    camera_jnt_vel_ = front_steer_jnt_vel_;
+    camera_jnt_eff_ = front_steer_jnt_eff_;
   }
 
   void SteerBotHardwareGazebo::writeSim(ros::Time time, ros::Duration period)
@@ -145,6 +153,8 @@ namespace steer_bot_hardware_gazebo
     jnt_limits_interface_.enforceLimits(period);
 
     log_cnt_++;
+    std::string lidar_name = "lidar_joint";
+    std::string camera_name = "camera_joint";
     for(int i = 0; i <  sim_joints_.size(); i++)
     {
       std::string gazebo_jnt_name;
@@ -196,7 +206,7 @@ namespace steer_bot_hardware_gazebo
       else if(gazebo_jnt_name == front_steer_jnt_name_)
       {
         front_steer_jnt_pos_ = front_steer_jnt_pos_cmd_;
-        ROS_INFO_STREAM("front_steer_jnt_pos_ '" << front_steer_jnt_pos_ << " ' at writeSim()");
+        //ROS_INFO_STREAM("front_steer_jnt_pos_ '" << front_steer_jnt_pos_ << " ' at writeSim()");
       }
       else if(gazebo_jnt_name == virtual_front_steer_jnt_names_[INDEX_RIGHT])
       {
@@ -237,6 +247,23 @@ namespace steer_bot_hardware_gazebo
 #else
         sim_joints_[i]->SetPosition(0, pos_cmd);
 #endif
+      }
+      // Camera and Lidar
+      else if(gazebo_jnt_name == lidar_name)
+      {
+        double pos_cmd = 0.0;
+        const double h = wheel_separation_h_;
+        const double w = wheel_separation_w_;
+
+        lidar_jnt_pos_ = front_steer_jnt_pos_cmd_;
+      }
+      else if(gazebo_jnt_name == camera_name)
+      {
+        double pos_cmd = 0.0;
+        const double h = wheel_separation_h_;
+        const double w = wheel_separation_w_;
+
+        camera_jnt_pos_ = front_steer_jnt_pos_cmd_; 
       }
       else
       {
@@ -345,6 +372,7 @@ namespace steer_bot_hardware_gazebo
   {
     this->RegisterSteerInterface();
     this->RegisterWheelInterface();
+    this->RegisterSensorInterface();
 
     // register mapped interface to ros_control
     registerInterface(&jnt_state_interface_);
@@ -410,6 +438,21 @@ namespace steer_bot_hardware_gazebo
             jnt_state_interface_, front_steer_jnt_pos_cmd_interface_,
             virtual_front_steer_jnt_names_[i], virtual_front_steer_jnt_pos_[i], virtual_front_steer_jnt_vel_[i], virtual_front_steer_jnt_eff_[i], virtual_front_steer_jnt_pos_cmd_[i]);
     }
+  }
+
+  void SteerBotHardwareGazebo::RegisterSensorInterface()
+  {
+    ROS_INFO_STREAM("!!REGISTERING SENSORS!!");
+    // Lidar joint
+    std::string lidar_name = "lidar_joint";
+    this->RegisterInterfaceHandles(
+          jnt_state_interface_, front_steer_jnt_pos_cmd_interface_,
+          lidar_name, lidar_jnt_pos_, lidar_jnt_vel_, lidar_jnt_vel_, lidar_jnt_vel_cmd_);
+    // Camera joint
+    std::string camera_name = "camera_joint";
+    this->RegisterInterfaceHandles(
+          jnt_state_interface_, front_steer_jnt_pos_cmd_interface_,
+          camera_name, camera_jnt_pos_, camera_jnt_vel_, camera_jnt_vel_, camera_jnt_vel_cmd_);
   }
 
   void SteerBotHardwareGazebo::RegisterJointStateInterfaceHandle(
