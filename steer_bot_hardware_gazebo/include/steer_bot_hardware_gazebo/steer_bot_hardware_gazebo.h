@@ -57,6 +57,7 @@ private:
   void RegisterHardwareInterfaces();
   void RegisterWheelInterface();
   void RegisterSteerInterface();
+  void RegisterSensorInterface();
   void RegisterInterfaceHandles(
           hardware_interface::JointStateInterface& _jnt_state_interface,
           hardware_interface::JointCommandInterface& _jnt_cmd_interface,
@@ -131,6 +132,26 @@ private:
   std::vector<double> virtual_front_wheel_jnt_eff_;
   //---- joint interface command
   std::vector<double> virtual_front_wheel_jnt_vel_cmd_;
+
+  // Lidar
+  //---- joint interface parameters
+  double lidar_jnt_pos_;
+  double lidar_jnt_vel_;
+  double lidar_jnt_eff_;
+  //---- joint interface command
+  double lidar_jnt_vel_cmd_;
+  //---- Hardware interface: joint
+  //hardware_interface::PositionJointInterface lidar_jnt_vel_cmd_interface_;
+
+  // Camera
+  //---- joint interface parameters
+  double camera_jnt_pos_;
+  double camera_jnt_vel_;
+  double camera_jnt_eff_;
+  //---- joint interface command
+  double camera_jnt_vel_cmd_;
+  //---- Hardware interface: joint
+  //hardware_interface::PositionJointInterface camera_jnt_vel_cmd_interface_;
 
   // front steer
   //-- actual joint(single actuator)
