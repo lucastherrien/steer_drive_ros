@@ -154,7 +154,7 @@ namespace steer_bot_hardware_gazebo
 
     log_cnt_++;
     std::string lidar_name = "lidar_joint";
-    std::string camera_name = "camera_joint";
+    std::string camera_name = "camera_real_joint";
     for(int i = 0; i <  sim_joints_.size(); i++)
     {
       std::string gazebo_jnt_name;
@@ -449,7 +449,7 @@ namespace steer_bot_hardware_gazebo
           jnt_state_interface_, front_steer_jnt_pos_cmd_interface_,
           lidar_name, lidar_jnt_pos_, lidar_jnt_vel_, lidar_jnt_vel_, lidar_jnt_vel_cmd_);
     // Camera joint
-    std::string camera_name = "camera_joint";
+    std::string camera_name = "camera_real_joint";
     this->RegisterInterfaceHandles(
           jnt_state_interface_, front_steer_jnt_pos_cmd_interface_,
           camera_name, camera_jnt_pos_, camera_jnt_vel_, camera_jnt_vel_, camera_jnt_vel_cmd_);
